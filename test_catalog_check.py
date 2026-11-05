@@ -1,4 +1,5 @@
 import io
+import csv
 import unittest
 from catalog_check import validate
 
@@ -43,6 +44,21 @@ class CatalogTests(unittest.TestCase):
         errors = self.check("P1,A,-1,0\nP2,B,1,-2\n")
         self.assertTrue(errors[0].startswith("row 2:"))
         self.assertTrue(errors[1].startswith("row 3:"))
+
+    def test_semicolon_with_quoted_separator(self):
+        data = 'sku;name;price;stock\nA;"Brush; small";12.99;4\n'
+        self.assertEqual(validate(io.StringIO(data), delimiter=";"), [])
+
+    def test_tab_separated_catalog(self):
+        data = "sku\tname\tprice\tstock\nA\tBrush\t12.99\t4\n"
+        self.assertEqual(validate(io.StringIO(data), delimiter="\t"), [])
+
+    def test_wrong_separator_does_not_silently_pass(self):
+        self.assertIn("header:", validate(io.StringIO("sku;name;price;stock\n"))[0])
+
+    def test_unclosed_quoted_field(self):
+        with self.assertRaises(csv.Error):
+            self.check('A,"Unclosed,1,0\n')
 
 
 if __name__ == "__main__":

@@ -5,8 +5,8 @@ import sys
 from decimal import Decimal, InvalidOperation
 
 
-def validate(stream):
-    reader = csv.DictReader(stream)
+def validate(stream, delimiter=","):
+    reader = csv.DictReader(stream, delimiter=delimiter, strict=True)
     required = {"sku", "name", "price", "stock"}
     if not required.issubset(reader.fieldnames or []):
         return ["header: required columns are sku, name, price, stock"]
@@ -43,10 +43,13 @@ def validate(stream):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("csv_file")
+    parser.add_argument("--delimiter", choices=(",", ";", "tab"), default=",",
+                        help="column separator: comma (default), semicolon or tab")
     args = parser.parse_args()
     try:
         with open(args.csv_file, encoding="utf-8-sig", newline="") as stream:
-            errors = validate(stream)
+            delimiter = "\t" if args.delimiter == "tab" else args.delimiter
+            errors = validate(stream, delimiter=delimiter)
     except (OSError, UnicodeError, csv.Error) as exc:
         print(f"Cannot read CSV: {exc}", file=sys.stderr)
         return 2
