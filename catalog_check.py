@@ -13,11 +13,11 @@ def validate(stream, delimiter=","):
     if len(reader.fieldnames) != len(set(reader.fieldnames)):
         return ["header: duplicate column names"]
     errors, seen = [], set()
-    for row_number, row in enumerate(reader, 2):
+    for row in reader:
         def fail(message):
-            errors.append(f"row {row_number}: {message}")
+            errors.append(f"row {reader.line_num}: {message}")
 
-        if None in row or any(row[key] is None for key in required):
+        if None in row or None in row.values():
             fail("column count does not match header")
             continue
         sku = row["sku"].strip()

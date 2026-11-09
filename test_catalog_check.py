@@ -26,7 +26,19 @@ class CatalogTests(unittest.TestCase):
             with self.subTest(row=row):
                 self.assertIn("column count", self.check(row)[0])
 
-    def test_bad_prices(self):
+    def test_missing_optional_cell_is_not_an_empty_cell(self):
+        data = "sku,name,price,stock,notes\nA,Brush,1,0\nB,Oil,2,1,\n"
+        self.assertEqual(validate(io.StringIO(data)),
+                         ["row 2: column count does not match header"])
+
+    def test_row_numbers_follow_file_lines(self):
+        errors = self.check('\nA,"Multi\nline",-1,0\n\nB,Oil,1,-1\n')
+        self.assertEqual(errors, [
+            "row 4: price must be a finite non-negative decimal",
+            "row 6: stock must be a non-negative integer",
+        ])
+
+    def test_invalid_price_formats(self):
         for price in ("-1", "NaN", "Infinity", "", "abc"):
             with self.subTest(price=price):
                 self.assertIn("price must", self.check(f"P1,A,{price},0\n")[0])
