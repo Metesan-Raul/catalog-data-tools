@@ -12,6 +12,8 @@ def validate(stream, delimiter=","):
         return ["header: required columns are sku, name, price, stock"]
     if len(reader.fieldnames) != len(set(reader.fieldnames)):
         return ["header: duplicate column names"]
+    if any(not name.strip() for name in reader.fieldnames):
+        return ["header: column names must not be empty"]
     errors, seen = [], set()
     for row in reader:
         def fail(message):

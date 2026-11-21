@@ -21,6 +21,17 @@ class CatalogTests(unittest.TestCase):
     def test_duplicate_trimmed_sku(self):
         self.assertIn("duplicate sku", self.check("P1,A,1,0\n P1 ,B,2,1\n")[0])
 
+    def test_empty_extra_column_name(self):
+        for name in ("", " ", "\t"):
+            with self.subTest(name=name):
+                data = f"sku,name,price,stock,{name}\nA,Brush,1,0,extra\n"
+                self.assertEqual(validate(io.StringIO(data)),
+                                 ["header: column names must not be empty"])
+
+    def test_named_optional_column_can_be_empty(self):
+        data = "sku,name,price,stock,notes\nA,Brush,1,0,\n"
+        self.assertEqual(validate(io.StringIO(data)), [])
+
     def test_missing_values_and_extra_cells(self):
         for row in ("P1,A,1\n", "P1,A,1,0,extra\n"):
             with self.subTest(row=row):
