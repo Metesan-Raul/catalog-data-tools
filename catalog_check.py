@@ -1,8 +1,10 @@
 """Validate a CSV before importing a product catalog. No writes to the source."""
 import argparse
 import csv
+import re
 import sys
-from decimal import Decimal, InvalidOperation
+
+PRICE = re.compile(r"\+?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)")
 
 
 def validate(stream, delimiter=","):
@@ -30,11 +32,7 @@ def validate(stream, delimiter=","):
         seen.add(sku)
         if not row["name"].strip():
             fail("name is empty")
-        try:
-            price = Decimal(row["price"].strip())
-            if not price.is_finite() or price < 0:
-                raise ValueError
-        except (InvalidOperation, ValueError):
+        if not PRICE.fullmatch(row["price"].strip()):
             fail("price must be a finite non-negative decimal")
         stock = row["stock"].strip()
         if not stock.isascii() or not stock.isdecimal():

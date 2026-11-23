@@ -54,6 +54,13 @@ class CatalogTests(unittest.TestCase):
             with self.subTest(price=price):
                 self.assertIn("price must", self.check(f"P1,A,{price},0\n")[0])
 
+    def test_price_uses_plain_ascii_notation(self):
+        for price in ("1_000", "1e2", "١٢.٥"):
+            with self.subTest(price=price):
+                self.assertEqual(self.check(f"P1,A,{price},0\n"),
+                                 ["row 2: price must be a finite non-negative decimal"])
+        self.assertEqual(self.check("P1,A,.50,0\nP2,B,+12.00,1\n"), [])
+
     def test_bad_stock(self):
         for stock in ("-1", "1.5", "1e2", "", "²"):
             with self.subTest(stock=stock):

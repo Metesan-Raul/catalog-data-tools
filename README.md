@@ -15,6 +15,6 @@ BRUSH-01,"Brush, small",12.99,4
 OIL-02,Oil,29.50,0
 ```
 
-Use UTF-8. Commas are the default separator; select semicolon or tab explicitly. Prices use a decimal point. SKUs are trimmed and case-sensitive. Stock is a non-negative integer. Column names must not be empty or whitespace. Extra named columns can have empty cells, but each record must have the same number of fields as the header. Exit codes: 0 valid, 1 invalid data, 2 unreadable or malformed CSV. A header-only catalog is valid.
+Use UTF-8. Commas are the default separator; select semicolon or tab explicitly. Prices use ASCII digits, an optional leading plus, and a decimal point. Exponents, thousands separators and negative signs are not accepted. SKUs are trimmed and case-sensitive. Stock is a non-negative integer. Column names must not be empty or whitespace. Extra named columns can have empty cells, but each record must have the same number of fields as the header. Exit codes: 0 valid, 1 invalid data, 2 unreadable or malformed CSV. A header-only catalog is valid.
 
 This validates file contents, not whether products exist in a store. It does not import data, change stock or connect to WooCommerce.
